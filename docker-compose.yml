@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: geo-check-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: geo_check
+    ports:
+      - "5432:5432"
+    volumes:
+      - geo_check_data:/var/lib/postgresql/data
+
+volumes:
+  geo_check_data:
