@@ -165,6 +165,33 @@ function App() {
     setSelectedCoordinates(null);
   };
 
+  const exportToCSV = () => {
+    const headers = ["id", "title", "description", "status", "latitude", "longitude"];
+
+    const rows = locations.map((location) => [
+      location.id,
+      location.title,
+      location.description || "",
+      location.status,
+      location.latitude,
+      location.longitude,
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((value) => `"${value}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "geocheck-locations.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
@@ -365,6 +392,10 @@ function App() {
       </div>
 
       <h2>Locations</h2>
+
+      <button type="button" onClick={exportToCSV}>
+        Export CSV
+      </button>
 
       <input
         type="text"
