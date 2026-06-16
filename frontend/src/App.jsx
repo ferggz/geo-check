@@ -429,7 +429,7 @@ function App() {
         <div ref={popupContentRef}></div>
       </div>
 
-      <h2>Locations</h2>
+      <h2 className="locations-section-title">Locations</h2>
 
       <div className="locations-toolbar">
         <input
