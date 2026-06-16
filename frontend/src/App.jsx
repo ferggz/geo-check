@@ -45,8 +45,10 @@ function App() {
     map.on("click", async (event) => {
       const [longitude, latitude] = toLonLat(event.coordinate);
       const title = prompt("Location title:");
-
       if (!title) return;
+
+      const description = prompt("Description:");
+      const status = prompt("Status: pending, in_progress or resolved") || "pending";
 
       await fetch("http://localhost:3000/locations", {
         method: "POST",
@@ -55,6 +57,8 @@ function App() {
         },
         body: JSON.stringify({
           title,
+          description,
+          status,
           latitude,
           longitude,
         }),
@@ -103,8 +107,9 @@ function App() {
         <ul>
           {locations.map((location) => (
             <li key={location.id}>
-              {location.title} — {location.latitude.toFixed(5)},{" "}
-              {location.longitude.toFixed(5)}
+              <strong>{location.title}</strong> [{location.status}] —{" "}
+              {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
+              {location.description && <p>{location.description}</p>}
             </li>
           ))}
         </ul>
