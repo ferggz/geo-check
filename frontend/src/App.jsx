@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "ol/ol.css";
+import "./App.css";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -193,17 +194,10 @@ function App() {
       <h1>GeoCheck</h1>
       <p>Click on the map to add a location.</p>
 
-      <div style={{ display: "flex", gap: "20px" }}>
-        <div
-          ref={mapRef}
-          style={{
-            width: "70%",
-            height: "500px",
-            border: "1px solid #ccc",
-          }}
-        />
+      <div className="app-layout">
+        <div ref={mapRef} className="map" />
 
-        <aside style={{ width: "30%" }}>
+        <aside className="sidebar">
           <h2>New location</h2>
 
           {!selectedCoordinates ? (
@@ -266,7 +260,7 @@ function App() {
       ) : (
         <ul>
           {locations.map((location) => (
-            <li key={location.id}>
+            <li className="location-item" key={location.id}>
               <strong>{location.title}</strong> [{location.status}] —{" "}
               {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
               {location.description && <p>{location.description}</p>}
