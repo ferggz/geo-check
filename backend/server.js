@@ -106,6 +106,31 @@ app.delete("/locations/:id", async (req, res) => {
   }
 });
 
+app.patch("/locations/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  console.log("Updating location", id, "to status", status);
+
+  const allowedStatuses = ["pending", "in_progress", "resolved"];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
+  try {
+    const result = await pool.query(
+      "UPDATE locations SET status = $1 WHERE id = $2 RETURNING *",
+      [status, id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update location status" });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

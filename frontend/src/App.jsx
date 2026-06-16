@@ -51,12 +51,24 @@ function App() {
   }, []);
 
   const deleteLocation = async (id) => {
-  await fetch(`http://localhost:3000/locations/${id}`, {
-    method: "DELETE",
-  });
+    await fetch(`http://localhost:3000/locations/${id}`, {
+      method: "DELETE",
+    });
 
-  fetchLocations();
-};
+    fetchLocations();
+  };
+
+  const updateStatus = async (id, status) => {
+    await fetch(`http://localhost:3000/locations/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    fetchLocations();
+  };
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -144,6 +156,14 @@ function App() {
               {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
               {location.description && <p>{location.description}</p>}
               <button onClick={() => deleteLocation(location.id)}>Delete</button>
+              <select
+                value={location.status}
+                onChange={(event) => updateStatus(location.id, event.target.value)}
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
             </li>
           ))}
         </ul>
