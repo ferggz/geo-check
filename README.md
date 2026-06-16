@@ -1,8 +1,8 @@
 # GeoCheck
 
-A fullstack geospatial incident management application built with React, Node.js, Express, PostgreSQL, PostGIS, OpenLayers and Docker.
+A fullstack geospatial management application built with React, Node.js, Express, PostgreSQL, PostGIS, OpenLayers and Docker.
 
-The application allows users to create, manage, visualize and organize geolocated incidents through an interactive map connected to a REST API backend.
+The application allows users to create, manage, visualize and organize geolocated points through an interactive map connected to a REST API backend.
 
 ## What I Learned
 
@@ -39,7 +39,7 @@ Through this project I practiced:
 * PostGIS spatial database integration
 * React frontend connected to an Express backend
 * Display locations as map markers
-* Marker colors based on incident status
+* Marker colors based on status
 * Click locations to center the map automatically
 * Map popups with location details
 * Create locations directly from the map
@@ -87,7 +87,7 @@ Through this project I practiced:
 ### Current Version
 
 * Added marker styling based on location status
-* Added map popups with incident details
+* Added map popups with details
 * Replaced prompt-based creation with a form interface
 * Added location search and status filtering
 * Added dashboard statistics
