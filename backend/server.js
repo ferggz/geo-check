@@ -50,6 +50,12 @@ app.get("/locations", async (req, res) => {
 app.post("/locations", async (req, res) => {
   const { title, description, status, latitude, longitude } = req.body;
 
+  const allowedStatuses = ["pending", "in_progress", "resolved"];
+
+  if (status && !allowedStatuses.includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
   if (!title || latitude === undefined || longitude === undefined) {
     return res.status(400).json({
       error: "Title, latitude and longitude are required",
