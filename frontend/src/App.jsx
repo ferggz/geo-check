@@ -88,6 +88,14 @@ function App() {
     fetchLocations();
   };
 
+  const focusLocation = (location) => {
+    mapInstanceRef.current.getView().animate({
+      center: fromLonLat([location.longitude, location.latitude]),
+      zoom: 15,
+      duration: 800,
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -317,12 +325,21 @@ function App() {
 
       <h2>Locations</h2>
 
+      <p className="locations-hint">
+        Click a location to center it on the map.
+      </p>
+
       {locations.length === 0 ? (
-        <p>No locations found.</p>
+
+      <p>No locations found.</p>
       ) : (
         <ul>
           {locations.map((location) => (
-            <li className="location-item" key={location.id}>
+            <li
+              className="location-item"
+              key={location.id}
+              onClick={() => focusLocation(location)}
+            >
               <strong>{location.title}</strong> [{location.status}] —{" "}
               {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
               {location.description && <p>{location.description}</p>}
@@ -330,7 +347,9 @@ function App() {
               <div className="location-actions">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(event) => {
+                    event.stopPropagation();
+
                     setEditingLocationId(location.id);
 
                     setFormData({
@@ -345,15 +364,23 @@ function App() {
                   Edit
                 </button>
 
-                <button type="button"onClick={() => deleteLocation(location.id)}>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    deleteLocation(location.id);
+                  }}
+                >
                   Delete
                 </button>
 
                 <select
                   value={location.status}
-                  onChange={(event) =>
-                    updateStatus(location.id, event.target.value)
-                  }
+                  onClick={(event) => event.stopPropagation()}
+                  onChange={(event) => {
+                    event.stopPropagation();
+                    updateStatus(location.id, event.target.value);
+                  }}
                 >
                   <option value="pending">Pending</option>
                   <option value="in_progress">In progress</option>
