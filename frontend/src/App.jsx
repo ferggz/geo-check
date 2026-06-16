@@ -22,6 +22,14 @@ function App() {
   const popupRef = useRef(null);
   const popupContentRef = useRef(null);
   const [locations, setLocations] = useState([]);
+
+  const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "pending",
+  });
   const getMarkerStyle = (status) => {
     const color =
       status === "resolved"
@@ -73,6 +81,33 @@ function App() {
     fetchLocations();
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!selectedCoordinates) return;
+
+    await fetch("http://localhost:3000/locations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...formData,
+        latitude: selectedCoordinates.latitude,
+        longitude: selectedCoordinates.longitude,
+      }),
+    });
+
+    setFormData({
+      title: "",
+      description: "",
+      status: "pending",
+    });
+
+    setSelectedCoordinates(null);
+    fetchLocations();
+  };
+
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
@@ -88,29 +123,13 @@ function App() {
       }),
     });
 
-    map.on("dblclick", async (event) => {
+    map.on("dblclick", (event) => {
       const [longitude, latitude] = toLonLat(event.coordinate);
-      const title = prompt("Location title:");
-      if (!title) return;
 
-      const description = prompt("Description:");
-      const status = prompt("Status: pending, in_progress or resolved") || "pending";
-
-      await fetch("http://localhost:3000/locations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          status,
-          latitude,
-          longitude,
-        }),
+      setSelectedCoordinates({
+        latitude,
+        longitude,
       });
-
-      fetchLocations();
     });
 
     const popup = new Overlay({
@@ -174,14 +193,57 @@ function App() {
       <h1>GeoCheck</h1>
       <p>Click on the map to add a location.</p>
 
-      <div
-        ref={mapRef}
-        style={{
-          width: "100%",
-          height: "500px",
-          border: "1px solid #ccc",
-        }}
-      />
+      <div style={{ display: "flex", gap: "20px" }}>
+        <div
+          ref={mapRef}
+          style={{
+            width: "70%",
+            height: "500px",
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <aside style={{ width: "30%" }}>
+          <h2>New location</h2>
+
+          {!selectedCoordinates ? (
+            <p>Double click on the map to select a point.</p>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Title"
+                value={formData.title}
+                onChange={(event) =>
+                  setFormData({ ...formData, title: event.target.value })
+                }
+                required
+              />
+
+              <textarea
+                placeholder="Description"
+                value={formData.description}
+                onChange={(event) =>
+                  setFormData({ ...formData, description: event.target.value })
+                }
+              />
+
+              <select
+                value={formData.status}
+                onChange={(event) =>
+                  setFormData({ ...formData, status: event.target.value })
+                }
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+
+              <button type="submit">Save location</button>
+            </form>
+          )}
+        </aside>
+      </div>
 
       <div
         ref={popupRef}
