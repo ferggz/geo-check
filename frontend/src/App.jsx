@@ -25,6 +25,7 @@ function App() {
   const popupContentRef = useRef(null);
   const [locations, setLocations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
 
@@ -65,9 +66,16 @@ function App() {
       .catch((error) => console.error("Error fetching locations:", error));
   };
 
-  const filteredLocations = locations.filter((location) =>
-    location.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLocations = locations.filter((location) => {
+    const matchesSearch = location.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || location.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   useEffect(() => {
     fetchLocations();
@@ -336,6 +344,16 @@ function App() {
         value={searchTerm}
         onChange={(event) => setSearchTerm(event.target.value)}
       />
+
+      <select
+        value={statusFilter}
+        onChange={(event) => setStatusFilter(event.target.value)}
+      >
+        <option value="all">All statuses</option>
+        <option value="pending">Pending</option>
+        <option value="in_progress">In progress</option>
+        <option value="resolved">Resolved</option>
+      </select>
 
       <p className="locations-hint">
         Click a location to center it on the map.
