@@ -89,6 +89,12 @@ function App() {
   }, []);
 
   const deleteLocation = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this location?"
+    );
+
+    if (!confirmed) return;
+
     await fetch(`http://localhost:3000/locations/${id}`, {
       method: "DELETE",
     });
