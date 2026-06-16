@@ -136,3 +136,11 @@ ul {
   border-radius: 8px;
   margin: 16px 0;
 }
+
+.locations-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}

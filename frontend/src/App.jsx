@@ -431,26 +431,28 @@ function App() {
 
       <h2>Locations</h2>
 
-      <button type="button" onClick={exportToCSV}>
-        Export CSV
-      </button>
+      <div className="locations-toolbar">
+        <input
+          type="text"
+          placeholder="Search locations..."
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+        />
 
-      <input
-        type="text"
-        placeholder="Search locations..."
-        value={searchTerm}
-        onChange={(event) => setSearchTerm(event.target.value)}
-      />
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+        >
+          <option value="all">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="in_progress">In progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
 
-      <select
-        value={statusFilter}
-        onChange={(event) => setStatusFilter(event.target.value)}
-      >
-        <option value="all">All statuses</option>
-        <option value="pending">Pending</option>
-        <option value="in_progress">In progress</option>
-        <option value="resolved">Resolved</option>
-      </select>
+        <button type="button" onClick={exportToCSV}>
+          Export CSV
+        </button>
+      </div>
 
       <p className="locations-hint">
         Click a location to center it on the map.
