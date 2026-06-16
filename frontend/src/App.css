@@ -128,3 +128,11 @@ ul {
 .stat-card strong {
   font-size: 1.5rem;
 }
+
+.message {
+  background: #16a34a;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}

@@ -39,6 +39,8 @@ function App() {
 
   const [editingLocationId, setEditingLocationId] = useState(null);
 
+  const [message, setMessage] = useState("");
+
   const getMarkerStyle = (status) => {
     const color =
       status === "resolved"
@@ -99,6 +101,9 @@ function App() {
       method: "DELETE",
     });
 
+    setMessage("Location deleted successfully.");
+    setTimeout(() => setMessage(""), 3000);
+
     fetchLocations();
   };
 
@@ -153,6 +158,14 @@ function App() {
       latitude: "",
       longitude: "",
     });
+
+    setMessage(
+      editingLocationId
+        ? "Location updated successfully."
+        : "Location created successfully."
+    );
+
+    setTimeout(() => setMessage(""), 3000);
 
     setEditingLocationId(null);
     setSelectedCoordinates(null);
@@ -290,6 +303,8 @@ function App() {
   return (
     <main>
       <h1>GeoCheck</h1>
+      {message && <div className="message">{message}</div>}
+
       <div className="stats-container">
         <div className="stat-card">
           <span>Total</span>
