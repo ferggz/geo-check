@@ -31,6 +31,8 @@ function App() {
     title: "",
     description: "",
     status: "pending",
+    latitude: "",
+    longitude: "",
   });
   const getMarkerStyle = (status) => {
     const color =
@@ -86,7 +88,20 @@ function App() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!selectedCoordinates) return;
+    const latitude = Number(formData.latitude);
+    const longitude = Number(formData.longitude);
+
+    if (
+      Number.isNaN(latitude) ||
+      Number.isNaN(longitude) ||
+      latitude < -90 ||
+      latitude > 90 ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      alert("Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.");
+      return;
+    }
 
     await fetch("http://localhost:3000/locations", {
       method: "POST",
@@ -95,8 +110,8 @@ function App() {
       },
       body: JSON.stringify({
         ...formData,
-        latitude: selectedCoordinates.latitude,
-        longitude: selectedCoordinates.longitude,
+        latitude,
+        longitude,
       }),
     });
 
@@ -104,10 +119,18 @@ function App() {
       title: "",
       description: "",
       status: "pending",
+      latitude: "",
+      longitude: "",
     });
 
     setSelectedCoordinates(null);
     fetchLocations();
+
+    mapInstanceRef.current.getView().animate({
+      center: fromLonLat([longitude, latitude]),
+      zoom: 14,
+      duration: 1000,
+    });
   };
 
   useEffect(() => {
@@ -135,6 +158,12 @@ function App() {
         latitude,
         longitude,
       });
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        latitude,
+        longitude,
+      }));
     });
 
     const popup = new Overlay({
@@ -204,42 +233,62 @@ function App() {
         <aside className="sidebar">
           <h2>New location</h2>
 
-          {!selectedCoordinates ? (
-            <p>Double click on the map to select a point.</p>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                placeholder="Title"
-                value={formData.title}
-                onChange={(event) =>
-                  setFormData({ ...formData, title: event.target.value })
-                }
-                required
-              />
+          <p>Double click on the map or enter coordinates manually.</p>
 
-              <textarea
-                placeholder="Description"
-                value={formData.description}
-                onChange={(event) =>
-                  setFormData({ ...formData, description: event.target.value })
-                }
-              />
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Title"
+              value={formData.title}
+              onChange={(event) =>
+                setFormData({ ...formData, title: event.target.value })
+              }
+              required
+            />
 
-              <select
-                value={formData.status}
-                onChange={(event) =>
-                  setFormData({ ...formData, status: event.target.value })
-                }
-              >
-                <option value="pending">Pending</option>
-                <option value="in_progress">In progress</option>
-                <option value="resolved">Resolved</option>
-              </select>
+            <textarea
+              placeholder="Description"
+              value={formData.description}
+              onChange={(event) =>
+                setFormData({ ...formData, description: event.target.value })
+              }
+            />
 
-              <button type="submit">Save location</button>
-            </form>
-          )}
+            <select
+              value={formData.status}
+              onChange={(event) =>
+                setFormData({ ...formData, status: event.target.value })
+              }
+            >
+              <option value="pending">Pending</option>
+              <option value="in_progress">In progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+
+            <input
+              type="number"
+              step="any"
+              placeholder="Latitude"
+              value={formData.latitude}
+              onChange={(event) =>
+                setFormData({ ...formData, latitude: event.target.value })
+              }
+              required
+            />
+
+            <input
+              type="number"
+              step="any"
+              placeholder="Longitude"
+              value={formData.longitude}
+              onChange={(event) =>
+                setFormData({ ...formData, longitude: event.target.value })
+              }
+              required
+            />
+
+            <button type="submit">Save location</button>
+          </form>
         </aside>
       </div>
 
