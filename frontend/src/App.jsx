@@ -9,12 +9,35 @@ import OSM from "ol/source/OSM";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import { fromLonLat, toLonLat } from "ol/proj";
+import Style from "ol/style/Style";
+import CircleStyle from "ol/style/Circle";
+import Fill from "ol/style/Fill";
+import Stroke from "ol/style/Stroke";
 
 function App() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const vectorSourceRef = useRef(new VectorSource());
   const [locations, setLocations] = useState([]);
+  const getMarkerStyle = (status) => {
+    const color =
+      status === "resolved"
+        ? "green"
+        : status === "in_progress"
+        ? "orange"
+        : "red";
+
+    return new Style({
+      image: new CircleStyle({
+        radius: 7,
+        fill: new Fill({ color }),
+        stroke: new Stroke({
+          color: "white",
+          width: 2,
+        }),
+      }),
+    });
+  };
 
   const fetchLocations = () => {
     fetch("http://localhost:3000/locations")
@@ -80,6 +103,8 @@ function App() {
         ),
         title: location.title,
       });
+
+      feature.setStyle(getMarkerStyle(location.status));
 
       vectorSourceRef.current.addFeature(feature);
     });
