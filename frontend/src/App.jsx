@@ -15,6 +15,7 @@ import CircleStyle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Overlay from "ol/Overlay";
+import { defaults as defaultInteractions } from "ol/interaction/defaults";
 
 function App() {
   const mapRef = useRef(null);
@@ -114,6 +115,9 @@ function App() {
 
     const map = new Map({
       target: mapRef.current,
+      interactions: defaultInteractions({
+        doubleClickZoom: false,
+      }),
       layers: [
         new TileLayer({ source: new OSM() }),
         new VectorLayer({ source: vectorSourceRef.current }),
