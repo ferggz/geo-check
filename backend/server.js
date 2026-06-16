@@ -139,7 +139,7 @@ app.patch("/locations/:id/status", async (req, res) => {
 
 app.put("/locations/:id", async (req, res) => {
   const { id } = req.params;
-  const { title, description, latitude, longitude } = req.body;
+  const { title, description, status, latitude, longitude } = req.body;
 
   try {
     const result = await pool.query(
@@ -147,13 +147,14 @@ app.put("/locations/:id", async (req, res) => {
       UPDATE locations
       SET title = $1,
           description = $2,
-          latitude = $3,
-          longitude = $4,
-          geom = ST_SetSRID(ST_MakePoint($4, $3), 4326)
-      WHERE id = $5
+          status = $3,
+          latitude = $4,
+          longitude = $5,
+          geom = ST_SetSRID(ST_MakePoint($5, $4), 4326)
+      WHERE id = $6
       RETURNING *
       `,
-      [title, description, latitude, longitude, id]
+      [title, description, status, latitude, longitude, id]
     );
 
     if (result.rows.length === 0) {
