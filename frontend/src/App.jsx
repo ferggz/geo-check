@@ -24,6 +24,7 @@ function App() {
   const popupRef = useRef(null);
   const popupContentRef = useRef(null);
   const [locations, setLocations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
 
@@ -63,6 +64,10 @@ function App() {
       .then((data) => Array.isArray(data) && setLocations(data))
       .catch((error) => console.error("Error fetching locations:", error));
   };
+
+  const filteredLocations = locations.filter((location) =>
+    location.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     fetchLocations();
@@ -325,16 +330,23 @@ function App() {
 
       <h2>Locations</h2>
 
+      <input
+        type="text"
+        placeholder="Search locations..."
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+      />
+
       <p className="locations-hint">
         Click a location to center it on the map.
       </p>
 
-      {locations.length === 0 ? (
+      {filteredLocations.length === 0 ? (
 
       <p>No locations found.</p>
       ) : (
         <ul>
-          {locations.map((location) => (
+          {filteredLocations.map((location) => (
             <li
               className="location-item"
               key={location.id}
