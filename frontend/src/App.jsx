@@ -332,6 +332,28 @@ function App() {
               <strong>{location.title}</strong> [{location.status}] —{" "}
               {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
               {location.description && <p>{location.description}</p>}
+              
+              <button
+                onClick={() => {
+                  const title = prompt("New title", location.title);
+                  if (!title) return;
+
+                  fetch(`http://localhost:3000/locations/${location.id}`, {
+                    method: "PUT",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      title,
+                      description: location.description,
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                    }),
+                  }).then(() => fetchLocations());
+                }}
+              >
+                Edit
+              </button>
               <button onClick={() => deleteLocation(location.id)}>Delete</button>
               <select
                 value={location.status}

@@ -137,6 +137,36 @@ app.patch("/locations/:id/status", async (req, res) => {
   }
 });
 
+app.put("/locations/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, description, latitude, longitude } = req.body;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE locations
+      SET title = $1,
+          description = $2,
+          latitude = $3,
+          longitude = $4,
+          geom = ST_SetSRID(ST_MakePoint($4, $3), 4326)
+      WHERE id = $5
+      RETURNING *
+      `,
+      [title, description, latitude, longitude, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Location not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update location" });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
