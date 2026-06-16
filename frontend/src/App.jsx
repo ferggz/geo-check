@@ -133,6 +133,18 @@ function App() {
     });
   };
 
+  const handleCancel = () => {
+    setFormData({
+      title: "",
+      description: "",
+      status: "pending",
+      latitude: "",
+      longitude: "",
+    });
+
+    setSelectedCoordinates(null);
+  };
+
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
@@ -288,6 +300,9 @@ function App() {
             />
 
             <button type="submit">Save location</button>
+            <button type="button" onClick={handleCancel}>
+              Cancel
+            </button>
           </form>
         </aside>
       </div>
