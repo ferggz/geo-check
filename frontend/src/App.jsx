@@ -34,6 +34,9 @@ function App() {
     latitude: "",
     longitude: "",
   });
+
+  const [editingLocationId, setEditingLocationId] = useState(null);
+
   const getMarkerStyle = (status) => {
     const color =
       status === "resolved"
@@ -91,20 +94,14 @@ function App() {
     const latitude = Number(formData.latitude);
     const longitude = Number(formData.longitude);
 
-    if (
-      Number.isNaN(latitude) ||
-      Number.isNaN(longitude) ||
-      latitude < -90 ||
-      latitude > 90 ||
-      longitude < -180 ||
-      longitude > 180
-    ) {
-      alert("Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.");
-      return;
-    }
+    const url = editingLocationId
+      ? `http://localhost:3000/locations/${editingLocationId}`
+      : "http://localhost:3000/locations";
 
-    await fetch("http://localhost:3000/locations", {
-      method: "POST",
+    const method = editingLocationId ? "PUT" : "POST";
+
+    await fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -123,14 +120,9 @@ function App() {
       longitude: "",
     });
 
+    setEditingLocationId(null);
     setSelectedCoordinates(null);
     fetchLocations();
-
-    mapInstanceRef.current.getView().animate({
-      center: fromLonLat([longitude, latitude]),
-      zoom: 14,
-      duration: 1000,
-    });
   };
 
   const handleCancel = () => {
@@ -299,7 +291,9 @@ function App() {
               required
             />
 
-            <button type="submit">Save location</button>
+            <button type="submit">
+              {editingLocationId ? "Update location" : "Save location"}
+            </button>
             <button type="button" onClick={handleCancel}>
               Cancel
             </button>
@@ -332,37 +326,40 @@ function App() {
               <strong>{location.title}</strong> [{location.status}] —{" "}
               {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
               {location.description && <p>{location.description}</p>}
-              
-              <button
-                onClick={() => {
-                  const title = prompt("New title", location.title);
-                  if (!title) return;
 
-                  fetch(`http://localhost:3000/locations/${location.id}`, {
-                    method: "PUT",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      title,
-                      description: location.description,
+              <div className="location-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingLocationId(location.id);
+
+                    setFormData({
+                      title: location.title,
+                      description: location.description || "",
+                      status: location.status,
                       latitude: location.latitude,
                       longitude: location.longitude,
-                    }),
-                  }).then(() => fetchLocations());
-                }}
-              >
-                Edit
-              </button>
-              <button onClick={() => deleteLocation(location.id)}>Delete</button>
-              <select
-                value={location.status}
-                onChange={(event) => updateStatus(location.id, event.target.value)}
-              >
-                <option value="pending">Pending</option>
-                <option value="in_progress">In progress</option>
-                <option value="resolved">Resolved</option>
-              </select>
+                    });
+                  }}
+                >
+                  Edit
+                </button>
+
+                <button type="button"onClick={() => deleteLocation(location.id)}>
+                  Delete
+                </button>
+
+                <select
+                  value={location.status}
+                  onChange={(event) =>
+                    updateStatus(location.id, event.target.value)
+                  }
+                >
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In progress</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
             </li>
           ))}
         </ul>

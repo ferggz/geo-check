@@ -75,3 +75,17 @@ button:hover {
 ul {
   padding: 0;
 }
+
+.location-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.location-actions button,
+.location-actions select {
+  margin: 0;
+}
