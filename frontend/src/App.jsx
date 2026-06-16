@@ -214,6 +214,14 @@ function App() {
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
+    const savedCenter = JSON.parse(localStorage.getItem("mapCenter"));
+    const savedZoom = localStorage.getItem("mapZoom");
+
+    const view = new View({
+      center: savedCenter || fromLonLat([-7.096, 42.006]),
+      zoom: savedZoom ? Number(savedZoom) : 12,
+    });
+
     const map = new Map({
       target: mapRef.current,
       interactions: defaultInteractions({
@@ -223,10 +231,7 @@ function App() {
         new TileLayer({ source: new OSM() }),
         new VectorLayer({ source: vectorSourceRef.current }),
       ],
-      view: new View({
-        center: fromLonLat([-7.096, 42.006]),
-        zoom: 12,
-      }),
+      view,
     });
 
     map.on("dblclick", (event) => {
@@ -274,6 +279,18 @@ function App() {
 
       popup.setPosition(event.coordinate);
     });
+
+      map.on("moveend", () => {
+    localStorage.setItem(
+      "mapCenter",
+      JSON.stringify(map.getView().getCenter())
+    );
+
+    localStorage.setItem(
+      "mapZoom",
+      map.getView().getZoom()
+    );
+  });
 
     mapInstanceRef.current = map;
   }, []);
