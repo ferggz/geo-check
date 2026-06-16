@@ -13,11 +13,14 @@ import Style from "ol/style/Style";
 import CircleStyle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
+import Overlay from "ol/Overlay";
 
 function App() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const vectorSourceRef = useRef(new VectorSource());
+  const popupRef = useRef(null);
+  const popupContentRef = useRef(null);
   const [locations, setLocations] = useState([]);
   const getMarkerStyle = (status) => {
     const color =
@@ -85,7 +88,7 @@ function App() {
       }),
     });
 
-    map.on("click", async (event) => {
+    map.on("dblclick", async (event) => {
       const [longitude, latitude] = toLonLat(event.coordinate);
       const title = prompt("Location title:");
       if (!title) return;
@@ -110,6 +113,37 @@ function App() {
       fetchLocations();
     });
 
+    const popup = new Overlay({
+      element: popupRef.current,
+      positioning: "bottom-center",
+      stopEvent: false,
+      offset: [0, -15],
+    });
+
+    map.addOverlay(popup);
+
+    map.on("click", (event) => {
+      const feature = map.forEachFeatureAtPixel(
+        event.pixel,
+        (feature) => feature
+      );
+
+      if (!feature) {
+        popup.setPosition(undefined);
+        return;
+      }
+
+      const { title, description, status } = feature.getProperties();
+
+      popupContentRef.current.innerHTML = `
+        <strong>${title}</strong><br />
+        Status: ${status}<br />
+        ${description || ""}
+      `;
+
+      popup.setPosition(event.coordinate);
+    });
+
     mapInstanceRef.current = map;
   }, []);
 
@@ -121,7 +155,12 @@ function App() {
         geometry: new Point(
           fromLonLat([location.longitude, location.latitude])
         ),
+      });
+
+      feature.setProperties({
         title: location.title,
+        description: location.description,
+        status: location.status,
       });
 
       feature.setStyle(getMarkerStyle(location.status));
@@ -143,6 +182,20 @@ function App() {
           border: "1px solid #ccc",
         }}
       />
+
+      <div
+        ref={popupRef}
+        style={{
+          background: "white",
+          padding: "10px",
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          minWidth: "200px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div ref={popupContentRef}></div>
+      </div>
 
       <h2>Locations</h2>
 
