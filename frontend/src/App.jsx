@@ -18,6 +18,8 @@ import Overlay from "ol/Overlay";
 import { defaults as defaultInteractions } from "ol/interaction/defaults";
 
 function App() {
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const vectorSourceRef = useRef(new VectorSource());
@@ -62,7 +64,7 @@ function App() {
   };
 
   const fetchLocations = () => {
-    fetch("http://localhost:3000/locations")
+    fetch(`${API_URL}/locations`)
       .then((res) => res.json())
       .then((data) => Array.isArray(data) && setLocations(data))
       .catch((error) => console.error("Error fetching locations:", error));
@@ -97,7 +99,7 @@ function App() {
 
     if (!confirmed) return;
 
-    await fetch(`http://localhost:3000/locations/${id}`, {
+    await fetch(`${API_URL}/locations/${id}`, {
       method: "DELETE",
     });
 
@@ -108,7 +110,7 @@ function App() {
   };
 
   const updateStatus = async (id, status) => {
-    await fetch(`http://localhost:3000/locations/${id}/status`, {
+    await fetch(`${API_URL}/locations/${id}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -134,8 +136,8 @@ function App() {
     const longitude = Number(formData.longitude);
 
     const url = editingLocationId
-      ? `http://localhost:3000/locations/${editingLocationId}`
-      : "http://localhost:3000/locations";
+      ? `${API_URL}/locations/${editingLocationId}`
+      : `${API_URL}/locations`;
 
     const method = editingLocationId ? "PUT" : "POST";
 
