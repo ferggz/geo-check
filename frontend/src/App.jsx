@@ -50,6 +50,14 @@ function App() {
     fetchLocations();
   }, []);
 
+  const deleteLocation = async (id) => {
+  await fetch(`http://localhost:3000/locations/${id}`, {
+    method: "DELETE",
+  });
+
+  fetchLocations();
+};
+
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
@@ -135,6 +143,7 @@ function App() {
               <strong>{location.title}</strong> [{location.status}] —{" "}
               {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
               {location.description && <p>{location.description}</p>}
+              <button onClick={() => deleteLocation(location.id)}>Delete</button>
             </li>
           ))}
         </ul>
