@@ -8,28 +8,66 @@ import VectorSource from "ol/source/Vector";
 import OSM from "ol/source/OSM";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
-import { fromLonLat } from "ol/proj";
+import { fromLonLat, toLonLat } from "ol/proj";
 
 function App() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const vectorSourceRef = useRef(new VectorSource());
   const [locations, setLocations] = useState([]);
 
-  useEffect(() => {
+  const fetchLocations = () => {
     fetch("http://localhost:3000/locations")
       .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setLocations(data);
-        }
-      })
+      .then((data) => Array.isArray(data) && setLocations(data))
       .catch((error) => console.error("Error fetching locations:", error));
+  };
+
+  useEffect(() => {
+    fetchLocations();
   }, []);
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const vectorSource = new VectorSource();
+    const map = new Map({
+      target: mapRef.current,
+      layers: [
+        new TileLayer({ source: new OSM() }),
+        new VectorLayer({ source: vectorSourceRef.current }),
+      ],
+      view: new View({
+        center: fromLonLat([-7.096, 42.006]),
+        zoom: 12,
+      }),
+    });
+
+    map.on("click", async (event) => {
+      const [longitude, latitude] = toLonLat(event.coordinate);
+      const title = prompt("Location title:");
+
+      if (!title) return;
+
+      await fetch("http://localhost:3000/locations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          latitude,
+          longitude,
+        }),
+      });
+
+      fetchLocations();
+    });
+
+    mapInstanceRef.current = map;
+  }, []);
+
+  useEffect(() => {
+    vectorSourceRef.current.clear();
 
     locations.forEach((location) => {
       const feature = new Feature({
@@ -39,31 +77,14 @@ function App() {
         title: location.title,
       });
 
-      vectorSource.addFeature(feature);
+      vectorSourceRef.current.addFeature(feature);
     });
-
-    const map = new Map({
-      target: mapRef.current,
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-        new VectorLayer({
-          source: vectorSource,
-        }),
-      ],
-      view: new View({
-        center: fromLonLat([-7.096, 42.006]),
-        zoom: 12,
-      }),
-    });
-
-    mapInstanceRef.current = map;
   }, [locations]);
 
   return (
     <main>
       <h1>GeoCheck</h1>
+      <p>Click on the map to add a location.</p>
 
       <div
         ref={mapRef}
@@ -82,7 +103,8 @@ function App() {
         <ul>
           {locations.map((location) => (
             <li key={location.id}>
-              {location.title} — {location.latitude}, {location.longitude}
+              {location.title} — {location.latitude.toFixed(5)},{" "}
+              {location.longitude.toFixed(5)}
             </li>
           ))}
         </ul>
