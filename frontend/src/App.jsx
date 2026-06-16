@@ -77,6 +77,13 @@ function App() {
     return matchesSearch && matchesStatus;
   });
 
+  const stats = {
+    total: locations.length,
+    pending: locations.filter((l) => l.status === "pending").length,
+    inProgress: locations.filter((l) => l.status === "in_progress").length,
+    resolved: locations.filter((l) => l.status === "resolved").length,
+  };
+
   useEffect(() => {
     fetchLocations();
   }, []);
@@ -250,6 +257,27 @@ function App() {
   return (
     <main>
       <h1>GeoCheck</h1>
+      <div className="stats-container">
+        <div className="stat-card">
+          <span>Total</span>
+          <strong>{stats.total}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Pending</span>
+          <strong>{stats.pending}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>In progress</span>
+          <strong>{stats.inProgress}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Resolved</span>
+          <strong>{stats.resolved}</strong>
+        </div>
+      </div>
       <p>Click on the map to add a location.</p>
 
       <div className="app-layout">
